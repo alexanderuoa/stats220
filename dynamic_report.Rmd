@@ -1,0 +1,104 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+library(tidyverse)
+```
+
+```{css}
+h2, h3, body {
+  text: Georgia;
+}
+
+h2 {
+  background: lightgray;
+  font: bold;
+  padding: 50px
+}
+
+body {
+  padding: 20px;
+}
+
+h3 {
+  background: lightblue;
+  padding: 30px;
+}
+
+```
+
+## Hydrated or lowdrated?: A dynamic report on observed water drinking habits
+
+Drinking water is _**absolutely essential**_ to human life. It is commonly said that a person should aim to drink at least 2L of water per day. As many people would report, this is easier said than done!
+
+The aim of my investigation is to simply observe my water drinking habits and see if any notable trends emerge through using the basic data visualisation techniques we currently have in our arsenal at this stage of the course. 
+
+### Insight 1: Type of water drank
+
+```{r}
+csv_file <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vRKrbAUjVR3QFNZW5Uhkn5LKf2wkA7wtY56olNSYiW77dg9u6gFk3ycWX09mHK7b9SlzynBeB8SWTjO/pub?output=csv"
+
+logged_data <- read.csv(csv_file)
+  
+latest_data <- logged_data %>%
+  rename(quantity = 2, 
+         type = 3,
+         reason = 4)
+
+water_types <- c("Tap", "Bottled", "Sparkling", "Brewed", "Electrolyte")
+
+# Use 3rd version of type plot
+water_type_plot3 <- latest_data %>%
+  ggplot() +
+  geom_bar(aes(x = type), fill = "light blue") +
+  labs(title = "Type of water drank", 
+       caption = "Source: Google Form survey", 
+       y = "Frequency",
+       x = "Type of water") +
+  scale_x_discrete(labels = sort(water_types))
+
+water_type_plot3
+```
+
+### Insight 2: The reason for drinking effects the type drank?
+
+```{r}
+# Use 3rd version of water-type plot
+water_type_reason_plot3 <- latest_data %>%
+  ggplot() +
+  geom_bar(aes(x = type, fill = reason)) +
+  labs(title = "Type of water drank by reason for drinking",
+       subtitle = "Does the reason for drinking relate to the type of water drank?",
+       caption = "Source: Google Form survey", 
+       y = "Frequency", 
+       x = "Type of water", 
+       fill = "Reason for drinking") +
+  scale_x_discrete(labels = sort(water_types)) +
+  theme(legend.position = "bottom",
+        legend.direction = "vertical")
+
+water_type_reason_plot3
+```
+
+### Insight 3: Fun statistics on water consumption habits
+
+```{r}
+
+min_drank <- min(latest_data$quantity)
+max_drank <- max(latest_data$quantity)
+mean_drank <- mean(latest_data$quantity)
+
+# Create a vector of summary stats for dynamic reporting
+summary_stats <- c(min_drank, max_drank, mean_drank)
+
+```
+
+The _minimum_ quantity drank in one drinking event is `r  summary_stats[1]` mL.
+
+The *MAXIMUM* quantity drank in one drinking event is `r summary_stats[2]` mL.
+
+The **Average** quantity drank per drinking event is `r round(summary_stats[3], 2)` mL.
